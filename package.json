@@ -11,6 +11,7 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "directory-tree": "^2.2.4",
+    "fs-extra": "^9.0.1",
     "lodash": "^4.17.15",
     "prop-types": "^15.7.2",
     "rc-tree": "^2.1.4",
