@@ -2,14 +2,22 @@ const path = require('path')
 const {app, BrowserWindow} = require('electron')
 const url = require('url');
 
+
+
 const debug = /--debug/.test(process.argv[2])
 
-if(process.mas) app.setName('Sync Directories');
+app.setName('Sync Directories');
+
+const desktopPath = app.getPath(`desktop`)
+app.setAppLogsPath(desktopPath);
+
+const logger = require('./winston');
 
 let mainWindow = null;
 
 function initialize(){
-    makeSingleInstance()
+    logger.info('initialising electron...');
+    makeSingleInstance();
 
     function createWindow (){
         const windowOptions = {
@@ -43,7 +51,8 @@ function initialize(){
     }
 
     app.on('ready', () => {
-        createWindow()
+        logger.info('initialising application Sync-Directory-App')
+        createWindow();
     })
 
     app.on('window-all-closed', () => {
@@ -60,6 +69,7 @@ function initialize(){
 }
 
 function makeSingleInstance(){
+    logger.info('acquiring single instance of application')
     if(process.mas) return
 
     app.requestSingleInstanceLock()

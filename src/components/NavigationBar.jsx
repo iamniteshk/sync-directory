@@ -10,6 +10,8 @@ import {
     Intent
 } from '@blueprintjs/core';
 
+import ErrorBoundary from './ErrorBoundary';
+
 export const NavigationBar = (props) => {
     let popoverContent = (
         <div key="text" style={{ padding: 20 }}>
@@ -20,35 +22,37 @@ export const NavigationBar = (props) => {
                     Cancel
                 </Button>
                 <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS} onClick={props.quitApp}>
-                    Delete
+                    Quit
                 </Button>
             </div>
         </div>
     );
 
     return (
-        <Navbar>
-            <NavbarGroup>
-                <Button
-                    className={Classes.MINIMAL}
-                    icon="duplicate"
-                    disabled={props.disableCopyBtn}
-                    onClick={props.copyFiles}
-                >Copy</Button>
-                <NavbarDivider />
-                <Popover content={popoverContent}>
+        <ErrorBoundary>
+            <Navbar>
+                <NavbarGroup>
                     <Button
                         className={Classes.MINIMAL}
-                        icon="small-cross"
-                        disabled={props.disableQuitBtn}
-                    >Quit</Button>
-                </Popover>
-                <NavbarDivider />
-                <Button
-                    className={Classes.MINIMAL}
-                    icon="timeline-events"
-                >Schedule Job</Button>
-            </NavbarGroup>
-        </Navbar>
+                        icon="duplicate"
+                        disabled={props.disableCopyBtn}
+                        onClick={props.copyFiles}
+                    >Copy</Button>
+                    <NavbarDivider />
+                    <Popover content={popoverContent}>
+                        <Button
+                            className={Classes.MINIMAL}
+                            icon="small-cross"
+                            disabled={props.disableQuitBtn}
+                        >Quit</Button>
+                    </Popover>
+                    <NavbarDivider />
+                    <Button
+                        className={Classes.MINIMAL}
+                        icon="timeline-events"
+                    >Schedule Job</Button>
+                </NavbarGroup>
+            </Navbar>
+        </ErrorBoundary>
     );
 }

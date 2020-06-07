@@ -6,6 +6,8 @@ import {
     Intent
   } from '@blueprintjs/core';
 
+  import ErrorBoundary from './ErrorBoundary';
+
 const CopyStatusToast = (props) =>
     <Toast
         icon="cloud-upload"
@@ -33,19 +35,17 @@ const ErrorToast = (props) =>
         onDismiss={props.onDismissErrorToast}
     />
 
-const TOAST_TYPE_MAP = Object.freeze({
+export const TOAST_TYPE_MAP = Object.freeze({
     COPY_STATUS_TOAST: CopyStatusToast,
     STATUS_TOAST: StatusToast,
     ERROR_TOAST: ErrorToast
 });
 
-const getToast = (toastType) => TOAST_TYPE_MAP[toastType];
-
-export const TOAST_TYPE = Object.keys(TOAST_TYPE_MAP);
-
 export const CustomToaster = (props) =>
-    <Toaster
-        position={props.position}
-    >
-        {getToast(props.toastType)}
-    </Toaster>
+    <ErrorBoundary>
+        <Toaster
+            position={props.position}
+        >
+            {props.toastType(props)}
+        </Toaster>
+    </ErrorBoundary>

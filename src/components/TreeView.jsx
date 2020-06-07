@@ -12,7 +12,6 @@ class TreeView extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        console.log('inside component', nextProps, this.props.filePath, this.props.directoryTree);
         if (!nextProps.isEnterKey && this.props.filePath === nextProps.filePath) {
             return false;
         }
@@ -20,23 +19,18 @@ class TreeView extends Component {
     }
 
     onCheckHandler = (keys) => {
-        console.log(keys);
         let finalKeys = keys.filter(each => !each.includes(":directory")).map(element => {
             let a = element.replace(/:file$/,'');
             return a;
         });
-        console.log('finalKeys', finalKeys);
         this.props.onSelectHandler(finalKeys)
     }
 
     renderDirectories = (dirTree) => {
         if (!dirTree || Object.keys(dirTree).length === 0) return;
-        // const data =  values(dirTree(filePath, {attributes:['ctime', 'mtime']}));
-        // console.log(data);
-        //if(JSON.stringify())
-        console.log('dirTree', dirTree);
+        
         const data = values(dirTree);
-        console.log('data as an array');
+        
         const html = (
             <div style={{ marginLeft: "5px" }}>
                 <Tree
@@ -55,7 +49,6 @@ class TreeView extends Component {
     }
 
     buildTreeNodes = (data) => {
-        console.log('inside', data);
         if (!data) return;
         return data.map((each, index) => {
             return (

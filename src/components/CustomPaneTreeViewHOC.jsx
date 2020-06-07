@@ -1,15 +1,18 @@
 import React from 'react';
 import { Pane } from 'react-split-pane';
 import TreeView from './TreeView';
+import ErrorBoundary from './ErrorBoundary';
 
 export const CustomPane = (props) =>
-    <Pane 
-        initialSize={props.initialSize}
-        minSize={props.minSize}
-        maxSize={props.maxSize}
-    >
-        {treeView(props)}
-    </Pane>
+    <ErrorBoundary>
+        <Pane
+            initialSize={props.initialSize}
+            minSize={props.minSize}
+            maxSize={props.maxSize}
+        >
+            {treeView(props)}
+        </Pane>
+    </ErrorBoundary>
 
 
 const treeView = (props) => 

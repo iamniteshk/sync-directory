@@ -1,22 +1,7 @@
 import React, { Component } from 'react';
-import SplitPane, { Pane } from 'react-split-pane';
-import TreeView from './components/TreeView';
+import SplitPane from 'react-split-pane';
 
-import {
-  Button,
-  Classes,
-  H5,
-  Navbar,
-  NavbarDivider,
-  NavbarGroup,
-  InputGroup, 
-  Position, 
-  Popover,
-  Toast, 
-  Toaster,
-  ProgressBar,
-  Intent
-} from '@blueprintjs/core';
+import { Position } from '@blueprintjs/core';
 
 
 import "rc-tree/assets/index.css";
@@ -27,7 +12,7 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import { NavigationBar } from './components/NavigationBar';
 import { InputGroups } from './components/InputGroups';
 import { CustomPane } from './components/CustomPaneTreeViewHOC';
-import { TOAST_TYPE, CustomToaster } from './components/ToastManager'
+import { TOAST_TYPE_MAP, CustomToaster } from './components/ToastManager';
 
 const { dialog } = window.require('electron').remote
 const dirTree = window.require("directory-tree");
@@ -37,6 +22,9 @@ const app = window.require('electron').remote.app;
 const path = window.require('path');
 const fs = window.require('fs');
 const fse = window.require('fs-extra');
+
+console.log(process.env.PUBLIC_URL);
+const logger = window.require(`./src/winston`);
 
 
 class App extends Component {
@@ -96,7 +84,6 @@ class App extends Component {
   }
 
   handleInputChange = (id, evt) => {
-    console.log(evt.target.value);
     switch (id) {
       case 'pathFrom':
         this.setState({
@@ -154,6 +141,7 @@ class App extends Component {
   }
 
   createDirectoryTreeOnEnterPress = (filePath, id) => {
+    logger.info(`enter key is pressed, creating directory tree structure for filepath: ${filePath} and id: ${id}`);
     const data = dirTree(filePath, { attributes: ['ctime', 'mtime'] });
     if (id === 'pathFrom') {
       this.setState({
@@ -176,8 +164,6 @@ class App extends Component {
     dialog.showOpenDialog({
       properties: ['openDirectory']
     }).then(result => {
-      console.log(result.filePaths);
-      console.log(result.canceled);
       if (result.canceled) {
         switch (btnName) {
           case 'SelectFileBtn1':
@@ -198,10 +184,8 @@ class App extends Component {
         }
       }
       if (result.filePaths && !result.canceled) {
-        console.log('inside filePaths');
         const filePath = `${result.filePaths}`
         const data = this.createDirectoryTree(filePath);
-        console.log("got data", data);
         switch (btnName) {
           case 'SelectFileBtn1':
             this.setState({
@@ -228,11 +212,11 @@ class App extends Component {
   }
 
   createDirectoryTree = (filePath) => {
+   logger.info('creating directory tree structure for path: ' + filePath);
     return dirTree(filePath, { attributes: ['ctime', 'mtime'] });
   }
 
   SelectedFiles = (checkedKeys) => {
-    console.log('Callback', checkedKeys);
     this.setState({
       selectedKeys: checkedKeys
     });
@@ -278,16 +262,16 @@ class App extends Component {
         const srcPath = filePath;
         const destPath = filePath.replace(this.state.filePath1, this.state.filePath2);
         let i = 0;
-        console.log(srcPath, destPath);
+       logger.info('copying file ' + srcPath + ' to destination: ' + destPath);
         fse.copy(srcPath, destPath, options)
           .then(() => {
-            console.log('success!')
+            logger.info('successfully copied file ' + srcPath);
             this.setState({
               copiedSoFar: ++i
             })
           })
           .catch(err => {
-            console.error(err)
+            logger.info('failed to copy file ' + srcPath + ' and error is ' + err);
             this.setState({
               copiedSoFar: ++i
             })
@@ -331,6 +315,7 @@ class App extends Component {
   }
 
   quitApp = () => {
+    logger.info('quiting application...')
     app.quit();
   }
 
@@ -396,39 +381,29 @@ class App extends Component {
         </SplitPane>
         {
           this.state.showToast ?
-          <Toaster
+          <CustomToaster 
             position={Position.TOP}
-          >
-            <Toast
-              icon="cloud-upload"
-              message={<ProgressBar
-              intent={this.state.copiedSoFar < this.state.totalFilesToCopy ? Intent.PRIMARY : Intent.SUCCESS}
-              value={this.state.copiedSoFar}
-              />}
-            />
-          </Toaster>
+            toastType={TOAST_TYPE_MAP.COPY_STATUS_TOAST}
+            totalFilesToCopy={this.state.totalFilesToCopy}
+            copiedSoFar={this.state.copiedSoFar}
+          />
           : ""
         }
         {
           this.state.showFinalToast ?
-          <Toaster
+          <CustomToaster 
             position={Position.TOP}
-          >
-            <Toast
-              icon="tick-circle"
-              intent={Intent.SUCCESS}
-              message={`Moved ${this.state.totalFilesToCopy} files`}
-              timeout={5000}
-              onDismiss={this.onDismissToast}
-            />
-          </Toaster>
+            toastType={TOAST_TYPE_MAP.STATUS_TOAST}
+            totalFilesToCopy={this.state.totalFilesToCopy}
+            onDismissToast={this.onDismissToast}
+          />
           : ""
         }
         {
           this.state.showErrorToast ?
             <CustomToaster
               position={Position.TOP}
-              toastType={TOAST_TYPE.ERROR_TOAST}
+              toastType={TOAST_TYPE_MAP.ERROR_TOAST}
               errorMsg={this.state.errorMsg}
               onDismissErrorToast={this.onDismissErrorToast}
             />
